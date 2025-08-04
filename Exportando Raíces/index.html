@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Exportando Raíces - Tienda</title>
+<style>
+  body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #F2EBDD;
+    color: #5A6E5D;
+  }
+  header, footer {
+    background-color: #A8BBA1;
+    color: white;
+    text-align: center;
+    padding: 1.5rem;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    background-color: #B8C6B0;
+    padding: 1rem;
+  }
+  nav a {
+    color: #5A6E5D;
+    font-weight: bold;
+    text-decoration: none;
+  }
+  nav a:hover {
+    color: #A8BBA1;
+  }
+
+  /* Banner con imagen */
+  #banner {
+    border-radius: 0 0 30px 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    overflow: hidden;
+    max-width: 1440px;
+    height: 600px;
+    margin: 0 auto 2rem auto;
+  }
+  #banner img {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+  }
+
+  .categoria-card {
+    cursor: pointer;
+    border-radius: 16px;
+    padding: 1.5rem;
+    width: 240px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.2s ease;
+  }
+  .categoria-card:hover {
+    transform: scale(1.03);
+  }
+  .producto {
+    background-color: white;
+    border-radius: 16px;
+    width: 260px;
+    padding: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  .producto img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  .btn {
+    margin: 0.3rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  .btn-interesa {
+    background-color: #A8BBA1;
+    color: white;
+  }
+  .btn-detalles {
+    background-color: #E8CFC8;
+    color: #5A6E5D;
+  }
+  #modalDetalles {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  #modalDetalles .contenido {
+    background: white;
+    padding: 2rem;
+    max-width: 800px;
+    width: 90%;
+    border-radius: 16px;
+    position: relative;
+  }
+  #modalDetalles img {
+    width: 150px;
+    border-radius: 12px;
+  }
+  /* Carrito moderno */
+  #carritoItems {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .carrito-item {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    align-items: center;
+  }
+  .carrito-item img {
+    width: 100px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  .carrito-info {
+    flex: 1;
+  }
+  .carrito-info h4 {
+    margin: 0 0 0.5rem 0;
+    color: #5A6E5D;
+  }
+  .carrito-info p {
+    margin: 0.2rem 0;
+    color: #9C9C9C;
+    font-size: 0.9rem;
+  }
+  .carrito-cantidad {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .carrito-cantidad button {
+    padding: 0.3rem 0.8rem;
+    font-size: 1.2rem;
+    background: #A8BBA1;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+  }
+  .carrito-cantidad input {
+    width: 50px;
+    text-align: center;
+    font-size: 1rem;
+    padding: 0.2rem;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+  }
+  .btn-eliminar {
+    background: #E57373;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #totalCompra {
+    text-align: right;
+    margin-top: 1rem;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #5A6E5D;
+  }
+  #btnPagar {
+    margin-top: 1rem;
+    padding: 0.75rem 2rem;
+    background-color: #5A6E5D;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+  #mensajePago {
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #2e7d32;
+  }
+  /* Formulario de pago */
+  #checkoutForm {
+    display: none;
+    max-width: 600px;
+    margin: 0 auto;
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  #checkoutForm h2 {
+    color: #5A6E5D;
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+  #checkoutForm label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #5A6E5D;
+  }
+  #checkoutForm input, #checkoutForm textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+  }
+  #checkoutForm button {
+    background-color: #5A6E5D;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: block;
+    margin: 0 auto;
+  }
+  /* Contacto mejorado */
+  #contacto {
+    display: none;
+    padding: 2rem;
+    max-width: 600px;
+    margin: auto;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  #contacto h2 {
+    color: #5A6E5D;
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+  #formContacto {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  #formContacto label {
+    font-weight: 600;
+    color: #5A6E5D;
+  }
+  #formContacto input, #formContacto textarea {
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid #B8C6B0;
+    font-size: 1rem;
+    width: 100%;
+  }
+  #formContacto button {
+    background-color: #A8BBA1;
+    color: white;
+    border: none;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #mensajeConfirmacionContacto {
+    margin-top: 1rem;
+    font-weight: bold;
+    color: #2e7d32;
+    display: none;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Economías Creativas de Ecuador para el Mundo</h1>
+</header>
+
+<nav>
+  <a href="#inicio" onclick="mostrarSeccion('inicio')">Inicio</a>
+  <a href="#tienda" onclick="mostrarSeccion('tienda')">Tienda</a>
+  <a href="#carrito" onclick="mostrarSeccion('carrito')">Carrito</a>
+  <a href="#contacto" onclick="mostrarSeccion('contacto')">Contacto</a>
+</nav>
+
+<main>
+
+  <section id="inicio" style="padding: 2rem; text-align: center;">
+    <div id="banner">
+      <img src="imagenes/inicio.jpg" alt="Economías Creativas de Ecuador para el Mundo" />
+    </div>
+
+    <h2 style="margin-top: 3rem;">¿Quiénes Somos?</h2>
+    <p style="max-width: 800px; margin: auto;">
+      Plataforma para conectar el talento creativo de Ecuador con compradores internacionales. Promovemos productos que representan identidad, sostenibilidad y cultura.
+    </p>
+    <div style="margin-top: 2rem;">
+      <img src="imagenes/quienes1.jpg" alt="quienes1" style="width:300px; border-radius:12px; margin-right:1rem;">
+      <img src="imagenes/quienes2.jpg" alt="quienes2" style="width:300px; border-radius:12px;">
+    </div>
+  </section>
+
+  <section id="tienda" style="display:none; padding: 2rem;">
+    <h2 style="text-align: center;">Explora por Categoría</h2>
+    <div style="display: flex; justify-content: center; flex-wrap: wrap; gap: 2rem; margin-top: 2rem;">
+      <div class="categoria-card" style="background-color: #FFE0B2;" onclick="mostrarProductos('naranja')">
+        <h3>🟠 Economía Naranja</h3><p>Cultura y creatividad</p>
+      </div>
+      <div class="categoria-card" style="background-color: #C8E6C9;" onclick="mostrarProductos('verde')">
+        <h3>🟢 Economía Verde</h3><p>Sostenible y ecológica</p>
+      </div>
+      <div class="categoria-card" style="background-color: #BBDEFB;" onclick="mostrarProductos('azul')">
+        <h3>🔵 Economía Azul</h3><p>Mar y turismo costero</p>
+      </div>
+      <div class="categoria-card" style="background-color: #FFF9C4;" onclick="mostrarProductos('dorada')">
+        <h3>🟡 Economía Amarilla</h3><p>Lujo y productos gourmet</p>
+      </div>
+    </div>
+
+    <div id="productos" style="margin-top: 3rem; display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;"></div>
+  </section>
+
+  <section id="carrito" style="display:none; padding: 2rem;">
+    <h2 style="text-align:center;">🛒 Carrito</h2>
+    <div id="carritoItems"></div>
+    <div id="totalCompra">Total: $0.00</div>
+    <button id="btnPagar">Finalizar Compra</button>
+    <div id="mensajePago"></div>
+  </section>
+
+  <section id="checkoutForm">
+    <h2>Ingreso de Datos para Finalizar Compra</h2>
+    <form id="formCompra">
+      <label for="nombre">Nombre completo *</label>
+      <input type="text" id="nombre" name="nombre" required>
+
+      <label for="email">Correo electrónico *</label>
+      <input type="email" id="email" name="email" required>
+
+      <label for="telefono">Teléfono *</label>
+      <input type="tel" id="telefono" name="telefono" required>
+
+      <label for="direccion">Dirección de envío *</label>
+      <textarea id="direccion" name="direccion" rows="3" required></textarea>
+
+      <button type="submit">Confirmar Compra</button>
+      <button type="button" onclick="cancelarCheckout()" style="margin-top: 1rem; background:#E57373;">Cancelar</button>
+    </form>
+    <div id="confirmacion" style="margin-top: 1rem; font-weight: bold; color: #2e7d32;"></div>
+  </section>
+
+  <section id="contacto">
+    <h2>Contacto</h2>
+    <form id="formContacto">
+      <label>
+        Nombre completo*:<br/>
+        <input type="text" name="nombre" required />
+      </label>
+      <label>
+        Correo electrónico*:<br/>
+        <input type="email" name="email" required />
+      </label>
+      <label>
+        Teléfono*:<br/>
+        <input type="tel" name="telefono" required />
+      </label>
+      <label>
+        Empresa / Organización:<br/>
+        <input type="text" name="empresa" />
+      </label>
+      <label>
+        País*:<br/>
+        <input type="text" name="pais" required />
+      </label>
+      <label>
+        Mensaje*:<br/>
+        <textarea name="mensaje" rows="4" required></textarea>
+      </label>
+      <button type="submit">Enviar</button>
+      <div id="mensajeConfirmacionContacto"></div>
+    </form>
+  </section>
+
+</main>
+
+<!-- Modal -->
+<div id="modalDetalles" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; z-index: 1000;">
+  <div class="contenido" style="background:white; padding:2rem; max-width:800px; width:90%; border-radius:16px; position:relative;">
+    <span onclick="cerrarModal()" style="position:absolute; top:10px; right:20px; cursor:pointer; font-size: 2rem; font-weight: bold;">&times;</span>
+    <h2 id="modalTitulo" style="color:#5A6E5D;"></h2>
+    <p id="modalDescripcion" style="color:#9C9C9C;"></p>
+    <div id="modalImagenes" style="display:flex; gap:1rem; overflow-x:auto; margin-top:1rem;"></div>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Elaborado con el ♥ </p>
+</footer>
+
+<script>
+  const productosPorCategoria = {
+    naranja: [
+      {
+        nombre: "Chompa Andina",
+        descripcion: "La chompa Andina ofrece suavidad y protección ante climas gélidos. Sus patrones geométricos, colores y dibujos representan la identidad y cultura de los Andes.",
+        precio: 24,
+        imagenes: [
+          "imagenes/naranja1_1.jpg",
+          "imagenes/naranja1_2.jpg",
+          "imagenes/naranja1_3.jpg",
+          "imagenes/naranja1_4.jpg",
+          "imagenes/naranja1_5.jpg"
+        ]
+      },
+      {
+        nombre: "Collar de Chakiro",
+        descripcion: "Descubre la elegancia en este collar que está hecho a mano en Ecuador por expertas y expertos locales que transforman la herencia cultural en estilo contemporáneo.",
+        precio: 10,
+        imagenes: [
+          "imagenes/naranja2_1.jpg",
+          "imagenes/naranja2_2.jpg",
+          "imagenes/naranja2_3.jpg",
+          "imagenes/naranja2_4.jpg",
+          "imagenes/naranja2_5.jpg"
+        ]
+      },
+      {
+        nombre: "Rondador",
+        descripcion: "Un instrumento musical de viento, que en cada sonido lleva la expresión artística del Ecuador. Hecho artesanalmente con cañas naturales, emite dulces melodías que llevan a la mente hacia los maravillosos paisajes andino.",
+        precio: 13,
+        imagenes: [
+          "imagenes/naranja3_1.jpg",
+          "imagenes/naranja3_2.jpg",
+          "imagenes/naranja3_3.jpg",
+          "imagenes/naranja3_4.jpg",
+          "imagenes/naranja3_5.jpg"
+        ]
+      },
+      {
+        nombre: "Sombrero de Paja Toquilla",
+        descripcion: "Sombreros hechos a mano por artesanos ecuatorianos, galardonados por la UNESCO como joya del patrimonio cultural del país. Un accesorio que te brindará elegancia, estilo y tradición.",
+        precio: 100,
+        imagenes: [
+          "imagenes/naranja4_1.jpg",
+          "imagenes/naranja4_2.jpg",
+          "imagenes/naranja4_3.jpg",
+          "imagenes/naranja4_4.jpg",
+          "imagenes/naranja4_5.jpg"
+        ]
+      }
+    ],
+    verde: [
+      {
+        nombre: "MAR-Cartera Artesanal de Cabuya",
+        descripcion: "Diseño boho-chic con identidad ecuatoriana. Elaborada a mano con cabuya tinturada naturalmente y cuero vacuno curtido vegetal.",
+        precio: 51,
+        imagenes: [
+          "imagenes/verde1_1.jpg",
+          "imagenes/verde1_2.jpg",
+          "imagenes/verde1_3.jpg",
+          "imagenes/verde1_4.jpg",
+          "imagenes/verde1_5.jpg"
+        ]
+      },
+      {
+        nombre: "Sumaq - Collar y Pendientes de Tagua en Azul",
+        descripcion: "Descubre la belleza natural y sostenible con nuestro exclusivo set de collar y pendientes hechos a mano con tagua, también conocida como marfil vegetal.",
+        precio: 13,
+        imagenes: [
+          "imagenes/verde2_1.jpg",
+          "imagenes/verde2_2.jpg",
+          "imagenes/verde2_3.jpg",
+          "imagenes/verde2_4.jpg",
+          "imagenes/verde2_5.jpg"
+        ]
+      },
+      {
+        nombre: "Bálsamo Labial Natural - Empaque Compostable",
+        descripcion: "Cuida tus labios de forma saludable y responsable con nuestro bálsamo labial 100% natural, elaborado con ingredientes comestibles, seguros para tu piel y para el planeta.",
+        precio: 6.50,
+        imagenes: [
+          "imagenes/verde3_1.jpg",
+          "imagenes/verde3_2.jpg",
+          "imagenes/verde3_3.jpg",
+          "imagenes/verde3_4.jpg",
+          "imagenes/verde3_5.jpg"
+        ]
+      },
+      {
+        nombre: "Pureza ecuatoriana - Jabón Artesanal de Caléndula",
+        descripcion: "Este jabón natural ha sido cuidadosamente elaborado con caléndula, reconocida por sus propiedades calmantes, regenerativas y antiinflamatorias.",
+        precio: 8,
+        imagenes: [
+          "imagenes/verde4_1.jpg",
+          "imagenes/verde4_2.jpg",
+          "imagenes/verde4_3.jpg",
+          "imagenes/verde4_4.jpg",
+          "imagenes/verde4_5.jpg"
+        ]
+      }
+    ],
+    azul: [
+      {
+        nombre: "Océano Vivo - Jabón natural de algas marinas",
+        descripcion: "Jabón artesanal elaborado con extracto de algas marinas recolectadas de forma sostenible en la costa ecuatoriana. Rico en minerales naturales que ayudan a hidratar, suavizar y revitalizar la piel.",
+        precio: 3.50,
+        imagenes: [
+          "imagenes/azul1_1.jpg",
+          "imagenes/azul1_2.jpg",
+          "imagenes/azul1_3.jpg",
+          "imagenes/azul1_4.jpg",
+          "imagenes/azul1_5.jpg"
+        ]
+      },
+      {
+        nombre: "Mar Serena - Pendientes de conchas naturales",
+        descripcion: "Pensientes hechos a mano con conchas de mar seleccionadas, recolectadas de manera responsable en las pkayas ecuatorianas. Cada pieza es única y refleja el arte costero local.",
+        precio: 4,
+        imagenes: [
+          "imagenes/azul2_1.jpg",
+          "imagenes/azul2_2.jpg",
+          "imagenes/azul2_3.jpg",
+          "imagenes/azul2_4.jpg",
+          "imagenes/azul2_5.jpg"
+        ]
+      },
+      {
+        nombre: "Sabor del Mar - Conserva artesanales de atún y corvina",
+        descripcion: "Conservas elaboradas por asociaciones pesqueras artesanales con atún y corvina capturados en el litoral ecuatoriano. Envasadas con ingredientes naturales, sin conservantes ni aditivos. Cada envase contiene 170 gramos de producto.",
+        precio: 3,
+        imagenes: [
+          "imagenes/azul3_1.jpg",
+          "imagenes/azul3_2.jpg",
+          "imagenes/azul3_3.jpg",
+          "imagenes/azul3_4.jpg",
+          "imagenes/azul3_5.jpg"
+        ]
+      },
+      {
+        nombre: "Mar Vital - Aceite natural de pescado",
+        descripcion: "Suplemento elaborado con aceites extraidos de pescado azul, rico en ácidos grasos y omega 3. Contribuye a mejorar la salud cardiovascular, reducir la inflamación y apoyar la función cerebral. Presentación de 250 ml y envases con 100 cápsula blandas.",
+        precio: 10,
+        imagenes: [
+          "imagenes/azul4_1.jpg",
+          "imagenes/azul4_2.jpg",
+          "imagenes/azul4_3.jpg",
+          "imagenes/azul4_4.jpg",
+          "imagenes/azul4_5.jpg"
+        ]
+      }
+    ],
+    dorada: [
+      {
+        nombre: "AndiVita - Suplemento en cápsulas de maca andina, sacha inchi o moringa",
+        descripcion: "Suplementos naturales elaborados a base de maca andina, sacha inchi y moringa, tres superalimentos con propiedades energizantes, antioxidantes y antiinflamatorias. 60 cápsulas por envase.",
+        precio: 20,
+        imagenes: [
+          "imagenes/dorada1_1.jpg",
+          "imagenes/dorada1_2.jpg",
+          "imagenes/dorada1_3.jpg",
+          "imagenes/dorada1_4.jpg",
+          "imagenes/dorada1_5.jpg"
+        ]
+      },
+      {
+        nombre: "BioTerra - Biofertilizantes a base de residuos orgánicos",
+        descripcion: "Fertilizante ecológico de alta eficacia formulado con residuos orgánicos y microorganismos nativos del suelo ecuatoriano.",
+        precio: 25,
+        imagenes: [
+          "imagenes/dorada2_1.jpg",
+          "imagenes/dorada2_2.jpg",
+          "imagenes/dorada2_3.jpg",
+          "imagenes/dorada2_4.jpg",
+          "imagenes/dorada2_5.jpg"
+        ]
+      },
+      {
+        nombre: "Cacaopack - Envases biodegradables",
+        descripcion: "Línea de envases, vasos y cubiertos biodegradables, hechos con cáscaras de cacao fino de aroma ecuatoriano. Cada set incluye 10 envases, 10 vasos y 10 cubiertos biodegradables.",
+        precio: 6,
+        imagenes: [
+          "imagenes/dorada3_1.jpg",
+          "imagenes/dorada3_2.jpg",
+          "imagenes/dorada3_3.jpg",
+          "imagenes/dorada3_4.jpg",
+          "imagenes/dorada3_5.jpg"
+        ]
+      },
+      {
+        nombre: "AmaShampoo - Champú con aceites esenciales amazónicos",
+        descripcion: "Champús sólidos con aceites esenciales amazónicos como guayusa, ungurahua y copal, que nutren el cuero cabelludo y fortalecen el cabello desde la raíz, Presentación de 1 litro y presentación sólida.",
+        precio: 15,
+        imagenes: [
+          "imagenes/dorada4_1.jpg",
+          "imagenes/dorada4_2.jpg",
+          "imagenes/dorada4_3.jpg",
+          "imagenes/dorada4_4.jpg",
+          "imagenes/dorada4_5.jpg"
+        ]
+      }
+    ]
+  };
+
+  let carrito = [];
+
+  function guardarCarrito() {
+    localStorage.setItem('carrito', JSON.stringify(carrito));
+  }
+  function cargarCarrito() {
+    const data = localStorage.getItem('carrito');
+    if(data) carrito = JSON.parse(data);
+  }
+
+  function mostrarSeccion(seccion) {
+    ['inicio','tienda','carrito','contacto','checkoutForm'].forEach(id => {
+      document.getElementById(id).style.display = (id === seccion) ? 'block' : 'none';
+    });
+    if(seccion === 'carrito') renderizarCarrito();
+  }
+
+  function mostrarProductos(categoria) {
+    mostrarSeccion('tienda');
+    const cont = document.getElementById('productos');
+    cont.innerHTML = '';
+    productosPorCategoria[categoria].forEach((prod, i) => {
+      const div = document.createElement('div');
+      div.className = 'producto';
+      div.innerHTML = `
+        <img src="${prod.imagenes[0]}" alt="${prod.nombre}" />
+        <h3>${prod.nombre}</h3>
+        <p>${prod.descripcion}</p>
+        <p><b>Precio: $${prod.precio.toFixed(2)}</b></p>
+        <button class="btn btn-detalles" onclick="verDetalles('${categoria}',${i})">Ver detalles</button>
+        <button class="btn btn-interesa" onclick="agregarAlCarrito('${categoria}',${i})">Agregar al carrito</button>
+      `;
+      cont.appendChild(div);
+    });
+  }
+
+  function verDetalles(categoria, indice) {
+    const producto = productosPorCategoria[categoria][indice];
+    document.getElementById('modalTitulo').textContent = producto.nombre;
+    document.getElementById('modalDescripcion').textContent = producto.descripcion;
+    const cont = document.getElementById('modalImagenes');
+    cont.innerHTML = '';
+    producto.imagenes.forEach(imgUrl => {
+      const img = document.createElement('img');
+      img.src = imgUrl;
+      img.alt = producto.nombre;
+      cont.appendChild(img);
+    });
+    document.getElementById('modalDetalles').style.display = 'flex';
+  }
+
+  function cerrarModal() {
+    document.getElementById('modalDetalles').style.display = 'none';
+  }
+
+  function agregarAlCarrito(categoria, indice) {
+    const producto = productosPorCategoria[categoria][indice];
+    const existe = carrito.find(item => item.nombre === producto.nombre);
+    if(existe) {
+      existe.cantidad++;
+    } else {
+      carrito.push({
+        categoria,
+        nombre: producto.nombre,
+        descripcion: producto.descripcion,
+        precio: producto.precio,
+        imagen: producto.imagenes[0],
+        cantidad: 1
+      });
+    }
+    guardarCarrito();
+    alert(`Se agregó "${producto.nombre}" al carrito`);
+  }
+
+  function renderizarCarrito() {
+    const cont = document.getElementById('carritoItems');
+    cont.innerHTML = '';
+    let total = 0;
+    if(carrito.length === 0) {
+      cont.innerHTML = '<p>El carrito está vacío.</p>';
+      document.getElementById('totalCompra').textContent = 'Total: $0.00';
+      return;
+    }
+    carrito.forEach((item, i) => {
+      const subtotal = item.precio * item.cantidad;
+      total += subtotal;
+      const div = document.createElement('div');
+      div.className = 'carrito-item';
+      div.innerHTML = `
+        <img src="${item.imagen}" alt="${item.nombre}">
+        <div class="carrito-info">
+          <h4>${item.nombre}</h4>
+          <p>${item.descripcion}</p>
+          <p><b>Precio unitario:</b> $${item.precio.toFixed(2)}</p>
+          <div class="carrito-cantidad">
+            <button onclick="modificarCantidad(${i}, -1)">-</button>
+            <input type="number" min="1" value="${item.cantidad}" onchange="cambiarCantidad(${i}, this.value)">
+            <button onclick="modificarCantidad(${i}, 1)">+</button>
+          </div>
+          <p><b>Subtotal:</b> $${subtotal.toFixed(2)}</p>
+        </div>
+        <button class="btn-eliminar" onclick="eliminarProducto(${i})" title="Eliminar producto">&times;</button>
+      `;
+      cont.appendChild(div);
+    });
+    document.getElementById('totalCompra').textContent = `Total: $${total.toFixed(2)}`;
+  }
+
+  function modificarCantidad(idx, cambio) {
+    carrito[idx].cantidad += cambio;
+    if(carrito[idx].cantidad < 1) carrito[idx].cantidad = 1;
+    guardarCarrito();
+    renderizarCarrito();
+  }
+
+  function cambiarCantidad(idx, valor) {
+    let cant = parseInt(valor);
+    if(isNaN(cant) || cant < 1) cant = 1;
+    carrito[idx].cantidad = cant;
+    guardarCarrito();
+    renderizarCarrito();
+  }
+
+  function eliminarProducto(idx) {
+    carrito.splice(idx, 1);
+    guardarCarrito();
+    renderizarCarrito();
+  }
+
+  document.getElementById('btnPagar').addEventListener('click', () => {
+    if(carrito.length === 0) {
+      alert("Tu carrito está vacío.");
+      return;
+    }
+    mostrarSeccion('checkoutForm');
+  });
+
+  // Manejo formulario compra
+  document.getElementById('formCompra').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const nombre = this.nombre.value.trim();
+    const email = this.email.value.trim();
+    const telefono = this.telefono.value.trim();
+    const direccion = this.direccion.value.trim();
+
+    if(nombre && email && telefono && direccion) {
+      document.getElementById('confirmacion').textContent = `Gracias ${nombre}, su compra ha sido confirmada. Nos pondremos en contacto vía ${email}.`;
+      carrito = [];
+      guardarCarrito();
+      this.reset();
+      setTimeout(() => {
+        mostrarSeccion('inicio');
+        document.getElementById('confirmacion').textContent = '';
+      }, 7000);
+    } else {
+      alert('Por favor complete todos los campos.');
+    }
+  });
+
+  function cancelarCheckout() {
+    mostrarSeccion('carrito');
+  }
+
+  // Formulario contacto
+  document.getElementById('formContacto').addEventListener('submit', function(e){
+    e.preventDefault();
+    const form = this;
+    const nombre = form.nombre.value.trim();
+    const email = form.email.value.trim();
+    const telefono = form.telefono.value.trim();
+    const pais = form.pais.value.trim();
+    const mensaje = form.mensaje.value.trim();
+
+    if(nombre && email && telefono && pais && mensaje) {
+      document.getElementById('mensajeConfirmacionContacto').textContent = `Gracias, ${nombre}. Tu mensaje ha sido enviado correctamente, un asesor se comunicará contigo en breve.`;
+      document.getElementById('mensajeConfirmacionContacto').style.display = 'block';
+      form.reset();
+      setTimeout(() => {
+        document.getElementById('mensajeConfirmacionContacto').style.display = 'none';
+      }, 6000);
+    } else {
+      alert("Por favor, complete todos los campos obligatorios.");
+    }
+  });
+
+  // Inicialización
+  cargarCarrito();
+  mostrarSeccion('inicio');
+</script>
+
+</body>
+</html>
